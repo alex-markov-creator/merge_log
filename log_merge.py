@@ -39,8 +39,8 @@ import time
 import dataclasses
 import argparse
 
-_LOG_FILENAMES = 'log_a.jsonl', 'log_b.jsonl'
-_LOG_MERGEDNAMES = 'log_merge.jsonl'
+#_LOG_FILENAMES = 'log_a.jsonl', 'log_b.jsonl'
+#_LOG_MERGEDNAMES = 'log_merge.jsonl'
 
 #ДЕКОРАТОР ХРОНОМЕТРАЖА
 def time_of_function(function):
@@ -59,24 +59,21 @@ def time_of_function(function):
 @dataclasses.dataclass
 class ParseArgs(object):
     """Commandline class"""
-    def __init__(self, _LOG_FILENAMES:tuple):
-        self._LOG_FILENAMES = _LOG_FILENAMES
-    #@time_of_function
-    def _parse_args(self) -> argparse.Namespace:
+    def __init__(self):
         parser = argparse.ArgumentParser(description='Tool to generate test logs.')
 
         parser.add_argument(
             'input_dir_1',
             metavar='<INPUT DIR1>',
             type=str,
-            help=f'path to dir with generated logs {_LOG_FILENAMES[0]}',
+            help=f'path to dir with generated logs_a',
         )
 
         parser.add_argument(
             'input_dir_2',
             metavar='<INPUT DIR2>',
             type=str,
-            help=f'path to dir with generated logs {_LOG_FILENAMES[1]}',
+            help=f'path to dir with generated logs_b',
         )
 
         parser.add_argument(
@@ -84,10 +81,39 @@ class ParseArgs(object):
             '--out',
             metavar='<OUTPUT DIR>',
             type=str,
-            help=f'path to dir with output file {_LOG_MERGEDNAMES}',
+            default=os.getcwd(),
+            help=f'path to dir with output file',
         )
 
-        return parser.parse_args()
+        parser.add_argument(
+            '-f', '--force',
+            action='store_const',
+            const=True,
+            default=False,
+            help='force write log',
+            dest='force_write',
+        )
+
+        self.args = parser.parse_args()
+
+    def parse_dir(self) -> list:
+        """
+        directory return function
+        a = ParseArgs()
+        a.parse_dir()[0] - path dir file_a
+        a.parse_dir()[1] - path dir file_b
+        a.parse_dir()[2] - path dir file_out
+        """
+        return [os.path.dirname(self.args.input_dir_1), os.path.dirname(self.args.input_dir_2), os.path.dirname(self.args.out)]
+
+    def parse_filename(self) -> list:
+        """
+        filenames return function
+        a = ParseArgs()
+        a.parse_filename()[0] - filename file_a
+        a.parse_filename()[1] - filename file_b
+        """
+        return [os.path.basename(self.args.input_dir_1), os.path.basename(self.args.input_dir_2)]
 
 @dataclasses.dataclass
 class CreateDir(object):
@@ -115,14 +141,12 @@ class MergeLogFiles(object):
         pass
 
 if __name__ == '__main__':
-    a = ParseArgs(_LOG_FILENAMES)
-    args = a._parse_args()
-    if len(sys.argv)==5:
-        args_out = sys.argv[-1]
-    else:
-        args_out = os.getcwd()
-    #print(args.input_dir_1, args.input_dir_2, args_out)
-
+    a = ParseArgs()
+    args = a.args
+    print(a.parse_filename())
+    print(a.parse_dir())
+    print(args.input_dir_1, args.input_dir_2, args.out)
+    pass
 
 
 
