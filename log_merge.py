@@ -53,8 +53,8 @@ def time_of_function(function):
         start_time = time.perf_counter()
         start_time_ns = time.perf_counter_ns()
         res = function(*args)
-        print(f'Время выполнения в секундах: {time.perf_counter() - start_time}')
-        print(f'Время выполнения в наносекундах: {time.perf_counter_ns() - start_time_ns}')
+        print(f'seconds: {time.perf_counter() - start_time}')
+        print(f'nsseconds: {time.perf_counter_ns() - start_time_ns}')
         return res
     return wrapped
 
@@ -119,7 +119,10 @@ class ParseArgs(object):
 
 @dataclasses.dataclass
 class CreateDir(object):
-    """File-out directory class """
+    """File-out directory class
+    dir_path = Path(a.parse_dir()[-1])
+    b = CreateDir(dir_path, force_write=args.force_write)
+    """
     def __init__(self, dir_path: Path, *, force_write: bool = False) -> None:
         if dir_path.exists():
             if not force_write:
@@ -134,30 +137,37 @@ class CreateDir(object):
         """
         pass
 
-
 @dataclasses.dataclass
 class MergeLogFiles(object):
-    """A class for merging files with names in the _LOG_FILENAMES variable into one file with a name in the _LOG_MERGENAMES variable
-    """
-    def __init__(self, _LOG_MERGEDNAMES: str):
-        pass
+    """A class for merging files"""
+    def __init__(self):
+        a = ParseArgs()
+        self.args = a.args
+        self.file_a = args.input_dir_1
+        self.file_b = args.input_dir_2
+        self.file_out = args.out
 
     def func(self):
+        print(f"reading {self.file_a}...")
         pass
 
     def func(self):
         pass
 
 if __name__ == '__main__':
-    # Аргументы
+    # Arguments
     a = ParseArgs()
     args = a.args
     print(a.parse_filename())
     print(a.parse_dir())
     print(args.input_dir_1, args.input_dir_2, args.out)
-    # Создание дирректории
+    # Create dir
     dir_path = Path(a.parse_dir()[-1])
     b = CreateDir(dir_path, force_write=args.force_write)
+    # Merge logs
+    c = MergeLogFiles()
+
+
 
 
 
