@@ -38,6 +38,8 @@ import sys
 import time
 import dataclasses
 import argparse
+from pathlib import Path
+import shutil
 
 #_LOG_FILENAMES = 'log_a.jsonl', 'log_b.jsonl'
 #_LOG_MERGEDNAMES = 'log_merge.jsonl'
@@ -117,15 +119,21 @@ class ParseArgs(object):
 
 @dataclasses.dataclass
 class CreateDir(object):
-    """File save directory class """
-    def __init__(self, output_dir):
-        pass
+    """File-out directory class """
+    def __init__(self, dir_path: Path, *, force_write: bool = False) -> None:
+        if dir_path.exists():
+            if not force_write:
+                raise FileExistsError(
+                    f'Dir "{dir_path}" already exists. Remove it first or choose another one.')
+            shutil.rmtree(dir_path)
+        dir_path.mkdir(parents=True)
 
     def func(self):
+        """
+        new function
+        """
         pass
 
-    def func(self):
-        pass
 
 @dataclasses.dataclass
 class MergeLogFiles(object):
@@ -141,13 +149,15 @@ class MergeLogFiles(object):
         pass
 
 if __name__ == '__main__':
+    # Аргументы
     a = ParseArgs()
     args = a.args
     print(a.parse_filename())
     print(a.parse_dir())
     print(args.input_dir_1, args.input_dir_2, args.out)
-    pass
-
+    # Создание дирректории
+    dir_path = Path(a.parse_dir()[-1])
+    b = CreateDir(dir_path, force_write=args.force_write)
 
 
 
