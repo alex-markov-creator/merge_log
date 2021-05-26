@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 """
-log_merge.py - merged log files: log_a.jsonl and log_b.jsonl
+gui_log_merge.py - merged log files
 author: a.bezzubov
 
 Имеется два файла с логами в формате JSONL, пример лога:
