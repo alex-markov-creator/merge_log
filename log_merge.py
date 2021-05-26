@@ -44,10 +44,9 @@ import json
 import re
 from dateutil.parser import parse
 
-
 def time_of_function(function):
     """
-    decorator time
+    time decorator
     """
     def wrapped(*args):
         start_time = time.perf_counter()
@@ -63,21 +62,18 @@ class ParseArgs(object):
     """Commandline class"""
     def __init__(self):
         parser = argparse.ArgumentParser(description='Tool to generate test logs.')
-
         parser.add_argument(
             'input_dir_1',
             metavar='<INPUT DIR1>',
             type=str,
             help=f'path to dir with generated logs_a',
         )
-
         parser.add_argument(
             'input_dir_2',
             metavar='<INPUT DIR2>',
             type=str,
             help=f'path to dir with generated logs_b',
         )
-
         parser.add_argument(
             '-o',
             '--out',
@@ -86,7 +82,6 @@ class ParseArgs(object):
             default=os.getcwd(),
             help=f'path to dir with output file',
         )
-
         parser.add_argument(
             '-f', '--force',
             action='store_const',
@@ -95,7 +90,6 @@ class ParseArgs(object):
             help='force write log',
             dest='force_write',
         )
-
         self.args = parser.parse_args()
 
     def parse_dir(self) -> list:
@@ -119,11 +113,15 @@ class ParseArgs(object):
 
 @dataclasses.dataclass
 class CreateDir(object):
-    """File-out directory class
+    """
+    File-out directory class
     dir_path = Path(a.parse_dir()[-1])
     b = CreateDir(dir_path, force_write=args.force_write)
     """
     def __init__(self, dir_path: Path, *, force_write: bool = False) -> None:
+        """
+        initialization function
+        """
         if dir_path.exists():
             if not force_write:
                 raise FileExistsError(
@@ -131,16 +129,13 @@ class CreateDir(object):
             shutil.rmtree(dir_path)
         dir_path.mkdir(parents=True)
 
-    def func(self):
-        """
-        new function
-        """
-        pass
-
 @dataclasses.dataclass
 class MergeLogFiles(object):
     """A class for merging files"""
     def __init__(self):
+        """
+        initialization function
+        """
         a = ParseArgs()
         self.args = a.args
         self.file_a = args.input_dir_1
@@ -149,31 +144,27 @@ class MergeLogFiles(object):
 
     @time_of_function
     def jsonl_file(self):
+        """
+        function of reading, combining and sorting files
+        """
         for infile in self.file_a,self.file_b:
             with open(infile, 'r') as file:
                 with open(self.file_out, 'a+') as write_file:
                     for line in file:
                         write_file.write(line)
-    @time_of_function
-    def jsonl_sorted(self):
         with open(self.file_out, 'a+') as f_in:
             print(*sorted(f_in.readlines(), key=lambda x: parse(re.search(r'(?<=")\d[-:\d ]+', x).group())))
-
 
 if __name__ == '__main__':
     # Arguments
     a = ParseArgs()
     args = a.args
-    print(a.parse_filename())
-    print(a.parse_dir())
-    print(args.input_dir_1, args.input_dir_2, args.out)
     # Create dir
     dir_path = Path(a.parse_dir()[-1])
     b = CreateDir(dir_path, force_write=args.force_write)
     # Merge logs
     c = MergeLogFiles()
     c.jsonl_file()
-    c.jsonl_sorted()
 
 
 
