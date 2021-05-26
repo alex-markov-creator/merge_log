@@ -40,14 +40,14 @@ import dataclasses
 import argparse
 from pathlib import Path
 import shutil
+import json
+import re
+from dateutil.parser import parse
 
-#_LOG_FILENAMES = 'log_a.jsonl', 'log_b.jsonl'
-#_LOG_MERGEDNAMES = 'log_merge.jsonl'
 
-#ДЕКОРАТОР ХРОНОМЕТРАЖА
 def time_of_function(function):
     """
-    #ДЕКОРАТОР  ВРЕМЕНИ ВЫПОЛНЕНИЯ
+    decorator time
     """
     def wrapped(*args):
         start_time = time.perf_counter()
@@ -147,12 +147,18 @@ class MergeLogFiles(object):
         self.file_b = args.input_dir_2
         self.file_out = args.out
 
-    def func(self):
-        print(f"reading {self.file_a}...")
-        pass
+    @time_of_function
+    def jsonl_file(self):
+        for infile in self.file_a,self.file_b:
+            with open(infile, 'r') as file:
+                with open(self.file_out, 'a+') as write_file:
+                    for line in file:
+                        write_file.write(line)
+    @time_of_function
+    def jsonl_sorted(self):
+        with open(self.file_out, 'a+') as f_in:
+            print(*sorted(f_in.readlines(), key=lambda x: parse(re.search(r'(?<=")\d[-:\d ]+', x).group())))
 
-    def func(self):
-        pass
 
 if __name__ == '__main__':
     # Arguments
@@ -166,6 +172,8 @@ if __name__ == '__main__':
     b = CreateDir(dir_path, force_write=args.force_write)
     # Merge logs
     c = MergeLogFiles()
+    c.jsonl_file()
+    c.jsonl_sorted()
 
 
 
